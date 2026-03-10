@@ -1,0 +1,1012 @@
+<!-- =====================================================
+     NEXUS · AI Financial Platform
+     Zero external deps — pure HTML/CSS/JS
+     CodePen ready: paste this in HTML panel only
+     ===================================================== -->
+
+<style>
+/* ── RESET & BASE ──────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  background:#07090f;
+  color:#e2e8f0;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1e293b;border-radius:2px}
+
+/* ── DESIGN TOKENS ─────────────────────────────────── */
+:root{
+  --bg:     #07090f;
+  --bg2:    #0d1117;
+  --bg3:    #111827;
+  --bg4:    #1a2234;
+  --bg5:    #212d42;
+  --lime:   #a8ff3e;
+  --lime2:  #85d428;
+  --limeA:  rgba(168,255,62,.12);
+  --limeB:  rgba(168,255,62,.06);
+  --cyan:   #38e8ff;
+  --cyanA:  rgba(56,232,255,.1);
+  --gold:   #f4b942;
+  --goldA:  rgba(244,185,66,.1);
+  --green:  #22c77a;
+  --greenA: rgba(34,199,122,.1);
+  --red:    #f05252;
+  --redA:   rgba(240,82,82,.1);
+  --t1:     #e2e8f0;
+  --t2:     #7c8ea8;
+  --t3:     #3d5070;
+  --border: rgba(255,255,255,.06);
+  --borderB:rgba(255,255,255,.1);
+  --r:      10px;
+  --r2:     16px;
+  --sb:     220px;
+}
+
+/* ── ONBOARDING ─────────────────────────────────────── */
+#ob{
+  position:fixed;inset:0;z-index:9000;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:20px;overflow-y:auto;
+}
+#ob::before{
+  content:'';position:fixed;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(168,255,62,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(168,255,62,.02) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.ob-box{
+  width:100%;max-width:540px;
+  background:var(--bg2);
+  border:1px solid var(--borderB);
+  border-radius:20px;padding:36px;
+  position:relative;z-index:1;overflow:hidden;
+}
+.ob-box::after{
+  content:'';position:absolute;top:-80px;right:-80px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(168,255,62,.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.ob-brand{
+  font-size:26px;font-weight:900;letter-spacing:5px;
+  background:linear-gradient(135deg,var(--lime),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:4px;
+}
+.ob-sub{font-size:11px;color:var(--t3);letter-spacing:2px;margin-bottom:28px;}
+.ob-track{height:2px;background:var(--bg4);border-radius:1px;margin-bottom:28px;overflow:visible;position:relative;}
+.ob-fill{
+  height:100%;background:linear-gradient(90deg,var(--lime),var(--cyan));
+  border-radius:1px;transition:width .5s cubic-bezier(.4,0,.2,1);position:relative;
+}
+.ob-fill::after{
+  content:'';position:absolute;right:-3px;top:-2px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--lime);box-shadow:0 0 8px var(--lime);
+}
+.ob-step{display:none;}
+.ob-step.on{display:block;animation:sIn .3s ease;}
+@keyframes sIn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:translateX(0)}}
+.ob-tag{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--lime);margin-bottom:6px;}
+.ob-title{font-size:20px;font-weight:800;letter-spacing:-.3px;margin-bottom:6px;}
+.ob-desc{font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:24px;}
+.ob-fields{display:flex;flex-direction:column;gap:12px;}
+.ob-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.ob-f label{display:block;font-size:10px;font-weight:700;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-bottom:5px;}
+.ob-f input,.ob-f select{
+  width:100%;background:var(--bg3);border:1px solid var(--borderB);
+  border-radius:var(--r);padding:10px 12px;
+  color:var(--t1);font-family:inherit;font-size:13px;
+  outline:none;transition:border-color .2s;appearance:none;
+}
+.ob-f input:focus,.ob-f select:focus{border-color:rgba(168,255,62,.4);}
+.ob-f select option{background:var(--bg3);}
+.risk-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.risk-btn{
+  padding:12px 8px;background:var(--bg3);border:1px solid var(--borderB);
+  border-radius:var(--r);cursor:pointer;text-align:center;transition:all .2s;
+}
+.risk-btn .ri{font-size:20px;display:block;margin-bottom:5px;}
+.risk-btn .rl{font-size:11px;font-weight:700;color:var(--t2);display:block;}
+.risk-btn .rd{font-size:9px;color:var(--t3);margin-top:2px;display:block;}
+.risk-btn.on{background:var(--limeA);border-color:rgba(168,255,62,.3);}
+.risk-btn.on .rl{color:var(--lime);}
+.ob-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;}
+.ob-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;}
+.ob-sum-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;}
+.osi-label{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;}
+.osi-val{font-size:16px;font-weight:800;margin-top:4px;}
+.ob-ai-box{background:var(--limeB);border:1px solid rgba(168,255,62,.12);border-radius:var(--r);padding:12px;margin-top:8px;}
+.ob-ai-lbl{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--lime);margin-bottom:6px;}
+.ob-ai-txt{font-size:11px;color:var(--t2);line-height:1.6;}
+
+/* ── BUTTONS ────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 20px;border-radius:var(--r);font-family:inherit;
+  font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .15s;
+}
+.btn-lime{background:var(--lime);color:#07090f;box-shadow:0 4px 16px rgba(168,255,62,.25);}
+.btn-lime:hover{background:var(--lime2);transform:translateY(-1px);}
+.btn-ghost{background:var(--bg4);border:1px solid var(--borderB);color:var(--t2);}
+.btn-ghost:hover{color:var(--t1);background:var(--bg5);}
+.btn-out{background:transparent;border:1px solid var(--borderB);color:var(--t2);}
+.btn-out:hover{border-color:rgba(168,255,62,.3);color:var(--lime);}
+.btn-sm{padding:6px 14px;font-size:11px;}
+
+/* ── APP ────────────────────────────────────────────── */
+#app{display:none;}
+#app.show{display:flex;min-height:100vh;animation:aFade .4s ease;}
+@keyframes aFade{from{opacity:0}to{opacity:1}}
+
+/* ── SIDEBAR ────────────────────────────────────────── */
+.sb{
+  width:var(--sb);flex-shrink:0;
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;z-index:50;
+}
+.sb-logo{
+  padding:20px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--lime);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;
+}
+.sb-mark svg{width:16px;height:16px;}
+.sb-brand{font-size:15px;font-weight:900;letter-spacing:2px;}
+.sb-ver{font-size:8px;color:var(--t3);margin-top:1px;letter-spacing:1px;}
+.sb-nav{flex:1;padding:14px 10px;}
+.sb-sec{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--t3);text-transform:uppercase;padding:4px 8px 8px;}
+.sb-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:var(--r);cursor:pointer;
+  font-size:13px;font-weight:600;color:var(--t2);
+  margin-bottom:2px;transition:all .12s;user-select:none;position:relative;
+}
+.sb-item:hover{background:var(--bg3);color:var(--t1);}
+.sb-item.on{background:var(--limeA);color:var(--lime);}
+.sb-item.on::before{
+  content:'';position:absolute;left:0;top:20%;height:60%;width:2px;
+  background:var(--lime);border-radius:0 2px 2px 0;
+}
+.sb-ico{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.sb-badge{
+  margin-left:auto;font-size:9px;font-weight:800;
+  background:var(--lime);color:#07090f;padding:1px 6px;border-radius:4px;
+}
+.sb-user{
+  padding:14px;border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-av{
+  width:30px;height:30px;border-radius:50%;background:var(--lime);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:900;color:#07090f;flex-shrink:0;
+}
+.sb-uname{font-size:12px;font-weight:700;}
+.sb-utag{font-size:9px;color:var(--lime);letter-spacing:.5px;}
+
+/* ── MAIN ───────────────────────────────────────────── */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.main::before{
+  content:'';position:fixed;inset:0;left:var(--sb);
+  background-image:
+    linear-gradient(rgba(168,255,62,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(168,255,62,.012) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0;
+}
+.topbar{
+  padding:14px 28px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(7,9,15,.9);backdrop-filter:blur(12px);
+  position:sticky;top:0;z-index:40;
+}
+.tb-title{font-size:15px;font-weight:800;letter-spacing:-.2px;}
+.tb-sub{font-size:11px;color:var(--t3);margin-top:2px;}
+.ai-pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--limeB);border:1px solid rgba(168,255,62,.2);
+  border-radius:20px;padding:5px 12px;
+  font-size:10px;font-weight:700;color:var(--lime);letter-spacing:.5px;
+}
+.ai-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--lime);
+  box-shadow:0 0 5px var(--lime);animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.content{flex:1;padding:24px 28px;position:relative;z-index:1;}
+
+/* ── PAGES ──────────────────────────────────────────── */
+.pg{display:none;}
+.pg.on{display:block;animation:pgIn .25s ease;}
+@keyframes pgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── CARD ───────────────────────────────────────────── */
+.card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r2);padding:20px;position:relative;overflow:hidden;
+}
+.card::after{
+  content:'';position:absolute;top:0;right:0;width:60px;height:60px;
+  background:radial-gradient(circle at top right,rgba(168,255,62,.04),transparent);
+  pointer-events:none;
+}
+.card-sm{padding:16px;}
+.clabel{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
+.cval{font-size:24px;font-weight:800;letter-spacing:-.5px;}
+.cdelta{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-top:5px;}
+.up{color:var(--green);background:var(--greenA);}
+.dn{color:var(--red);background:var(--redA);}
+
+/* ── GRIDS ──────────────────────────────────────────── */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.g75{display:grid;grid-template-columns:7fr 5fr;gap:12px;margin-bottom:16px;}
+.g64{display:grid;grid-template-columns:6fr 4fr;gap:12px;margin-bottom:16px;}
+.mb{margin-bottom:16px;}
+
+/* ── SECTION HEADER ─────────────────────────────────── */
+.sh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;}
+.sh-title{font-size:14px;font-weight:800;}
+.sh-sub{font-size:11px;color:var(--t2);margin-top:2px;}
+
+/* ── PURE CSS CHARTS ────────────────────────────────── */
+/* Bar Chart */
+.chart-bar{display:flex;align-items:flex-end;gap:0;height:160px;position:relative;}
+.chart-bar::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(to top,transparent,transparent calc(25% - 1px),rgba(255,255,255,.04) calc(25%),rgba(255,255,255,.04) calc(25%));
+  pointer-events:none;
+}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.bar-pair{display:flex;gap:2px;align-items:flex-end;width:100%;justify-content:center;}
+.bar-i,.bar-e{
+  border-radius:3px 3px 0 0;transition:height .8s cubic-bezier(.4,0,.2,1);
+  min-width:8px;flex:1;max-width:18px;
+}
+.bar-i{background:linear-gradient(to top,var(--lime),rgba(168,255,62,.6));}
+.bar-e{background:linear-gradient(to top,var(--red),rgba(240,82,82,.4));}
+.bar-label{font-size:9px;color:var(--t3);margin-top:4px;}
+
+/* Donut Chart - pure CSS */
+.donut-wrap{position:relative;width:130px;height:130px;flex-shrink:0;}
+.donut-wrap svg{transform:rotate(-90deg);}
+.donut-center{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.donut-num{font-size:22px;font-weight:800;}
+.donut-lbl{font-size:9px;color:var(--t3);}
+
+/* Line Chart - pure CSS/SVG */
+.line-chart{width:100%;height:120px;}
+
+/* Credit Ring */
+.cr-wrap{display:flex;flex-direction:column;align-items:center;padding:8px 0;}
+.cr-svg{position:relative;width:130px;height:130px;}
+.cr-svg svg{transform:rotate(-90deg);}
+.cr-inner{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.cr-num{font-size:26px;font-weight:800;}
+.cr-of{font-size:10px;color:var(--t3);margin-top:1px;}
+.cr-badge{
+  margin-top:12px;font-size:10px;font-weight:700;letter-spacing:1px;
+  padding:4px 12px;border-radius:6px;
+}
+
+/* ── AI INSIGHT ─────────────────────────────────────── */
+.insight{
+  background:linear-gradient(135deg,rgba(168,255,62,.06),rgba(56,232,255,.03));
+  border:1px solid rgba(168,255,62,.14);
+  border-radius:var(--r2);padding:16px;margin-bottom:12px;position:relative;
+}
+.insight::after{
+  content:'AI';position:absolute;right:16px;top:16px;
+  font-size:8px;font-weight:800;letter-spacing:2px;
+  color:rgba(168,255,62,.25);
+}
+.i-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.i-ico{font-size:16px;}
+.i-title{font-size:13px;font-weight:700;}
+.i-tag{
+  font-size:8px;font-weight:800;letter-spacing:1px;text-transform:uppercase;
+  background:var(--limeA);color:var(--lime);padding:2px 6px;border-radius:4px;
+}
+.i-body{font-size:12px;color:var(--t2);line-height:1.65;}
+
+/* ── TABLE ──────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{
+  text-align:left;font-size:9px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--t3);
+  padding:8px 12px;border-bottom:1px solid var(--border);
+}
+tbody td{padding:11px 12px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover td{background:rgba(255,255,255,.015);}
+tbody tr.hi td{background:rgba(168,255,62,.04);}
+.bdg{display:inline-flex;align-items:center;font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:4px;}
+.bdg-g{background:var(--greenA);color:var(--green);}
+.bdg-y{background:var(--goldA);color:var(--gold);}
+.bdg-l{background:var(--limeA);color:var(--lime);}
+.bdg-r{background:var(--redA);color:var(--red);}
+.bdg-c{background:var(--cyanA);color:var(--cyan);}
+
+/* ── PROGRESS ───────────────────────────────────────── */
+.ptrack{height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.pfill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.4,0,.2,1);}
+
+/* ── TRANSACTION ────────────────────────────────────── */
+.txn{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.txn:last-child{border-bottom:none;}
+.txn-av{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.txn-name{font-size:13px;font-weight:600;}
+.txn-date{font-size:10px;color:var(--t3);margin-top:1px;}
+.txn-amt{margin-left:auto;font-size:13px;font-weight:700;}
+.cr-t{color:var(--green);}
+.dr-t{color:var(--red);}
+
+/* ── BUDGET ─────────────────────────────────────────── */
+.bcat{margin-bottom:14px;}
+.bcat-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.bcat-name{font-size:12px;font-weight:600;display:flex;align-items:center;gap:7px;}
+.bcat-vals{font-size:10px;color:var(--t2);}
+
+/* ── HEALTH SCORE ───────────────────────────────────── */
+.hm{text-align:center;padding:10px 0;}
+.hm-score{font-size:56px;font-weight:900;letter-spacing:-3px;}
+.hm-lbl{font-size:10px;color:var(--t2);margin-top:3px;}
+.hm-bars{margin-top:20px;display:flex;flex-direction:column;gap:12px;}
+.hm-row{display:flex;align-items:center;gap:10px;}
+.hm-rl{font-size:10px;color:var(--t2);width:100px;flex-shrink:0;}
+.hm-rt{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.hm-rf{height:100%;border-radius:2px;}
+.hm-rv{font-size:10px;font-weight:700;width:32px;text-align:right;flex-shrink:0;}
+
+/* ── TRANSFER ───────────────────────────────────────── */
+.tf-box{background:var(--bg3);border:1px solid var(--borderB);border-radius:var(--r2);padding:14px;margin-bottom:10px;transition:border-color .2s;}
+.tf-box:focus-within{border-color:rgba(168,255,62,.35);}
+.tf-lbl{display:block;font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-bottom:5px;}
+.tf-inp{width:100%;background:transparent;border:none;font-size:26px;font-weight:800;color:var(--t1);font-family:inherit;outline:none;}
+.tf-sel{width:100%;background:transparent;border:none;font-size:13px;font-weight:600;color:var(--t1);font-family:inherit;outline:none;appearance:none;}
+
+/* ── DEP RATE ───────────────────────────────────────── */
+.dep-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.dep-row:last-child{border-bottom:none;}
+.dep-bank{font-size:12px;font-weight:600;flex:1;}
+.dep-rate{font-size:14px;font-weight:800;}
+
+/* ── LEGEND ─────────────────────────────────────────── */
+.legend{display:flex;gap:14px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2);}
+.leg-dot{width:8px;height:8px;border-radius:2px;}
+
+/* ── TOAST ──────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:var(--bg2);border:1px solid rgba(168,255,62,.3);
+  border-radius:var(--r);padding:12px 20px;
+  font-size:12px;font-weight:600;color:var(--lime);
+  transform:translateY(16px);opacity:0;
+  transition:all .28s ease;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* ── INS DOTS ───────────────────────────────────────── */
+.cov-dots{display:flex;gap:3px;margin-top:5px;}
+.cov-dot{width:7px;height:7px;border-radius:50%;background:var(--bg5);}
+.cov-dot.on{background:var(--lime);box-shadow:0 0 4px rgba(168,255,62,.4);}
+</style>
+
+<!-- ════════════ ONBOARDING ════════════ -->
+<div id="ob">
+<div class="ob-box">
+  <div class="ob-brand">NEXUS</div>
+  <div class="ob-sub">AI FINANCIAL PLATFORM</div>
+  <div class="ob-track"><div class="ob-fill" id="obF" style="width:20%"></div></div>
+
+  <!-- Step 1 -->
+  <div class="ob-step on" id="os1">
+    <div class="ob-tag">STEP 01 / 04</div>
+    <div class="ob-title">Build your financial profile</div>
+    <div class="ob-desc">Your data stays local. Powers personalized AI recommendations.</div>
+    <div class="ob-fields">
+      <div class="ob-row">
+        <div class="ob-f"><label>Full Name</label><input id="fn" value="Jordan Mercer"></div>
+        <div class="ob-f"><label>Occupation</label>
+          <select id="fj"><option>Software Engineer</option><option>Business Owner</option><option>Doctor</option><option>Manager</option><option>Freelancer</option><option>Teacher</option></select>
+        </div>
+      </div>
+      <div class="ob-row">
+        <div class="ob-f"><label>Monthly Income ($)</label><input id="fi" type="number" value="8500"></div>
+        <div class="ob-f"><label>Monthly Expenses ($)</label><input id="fe" type="number" value="5200"></div>
+      </div>
+      <div class="ob-f"><label>Employment</label>
+        <select id="fs"><option>Full-time Employee</option><option>Self-employed</option><option>Part-time</option><option>Contract</option></select>
+      </div>
+    </div>
+    <div class="ob-actions"><button class="btn btn-lime" onclick="og(2)">Continue →</button></div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="ob-step" id="os2">
+    <div class="ob-tag">STEP 02 / 04</div>
+    <div class="ob-title">What do you own?</div>
+    <div class="ob-desc">Calculates your credit profile and loan eligibility.</div>
+    <div class="ob-fields">
+      <div class="ob-row">
+        <div class="ob-f"><label>Savings ($)</label><input id="fsa" type="number" value="32000"></div>
+        <div class="ob-f"><label>Total Debt ($)</label><input id="fde" type="number" value="9500"></div>
+      </div>
+      <div class="ob-row">
+        <div class="ob-f"><label>Investments ($)</label><input id="fin" type="number" value="22000"></div>
+        <div class="ob-f"><label>Property Value ($)</label><input id="fpr" type="number" value="280000"></div>
+      </div>
+      <div class="ob-row">
+        <div class="ob-f"><label>Home Status</label>
+          <select id="fho"><option>Homeowner</option><option>Renting</option><option>Living with family</option></select>
+        </div>
+        <div class="ob-f"><label>Car Status</label>
+          <select id="fca"><option>Own a car</option><option>No car</option><option>Company vehicle</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="ob-actions">
+      <button class="btn btn-ghost" onclick="og(1)">← Back</button>
+      <button class="btn btn-lime" onclick="og(3)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="ob-step" id="os3">
+    <div class="ob-tag">STEP 03 / 04</div>
+    <div class="ob-title">Risk profile & goals</div>
+    <div class="ob-desc">AI tailors every recommendation to your comfort level.</div>
+    <div class="ob-fields">
+      <div class="ob-f">
+        <label>Risk Tolerance</label>
+        <div class="risk-g">
+          <div class="risk-btn" id="rc" onclick="sr('Conservative',this)"><span class="ri">🛡️</span><span class="rl">Conservative</span><span class="rd">Stability first</span></div>
+          <div class="risk-btn on" id="rm" onclick="sr('Moderate',this)"><span class="ri">⚖️</span><span class="rl">Moderate</span><span class="rd">Balanced growth</span></div>
+          <div class="risk-btn" id="ra" onclick="sr('Aggressive',this)"><span class="ri">🚀</span><span class="rl">Aggressive</span><span class="rd">Max returns</span></div>
+        </div>
+      </div>
+      <div class="ob-f"><label>Primary Goal</label>
+        <select id="fg"><option>Buy a home</option><option>Early retirement</option><option>Emergency fund</option><option>Start a business</option><option>Wealth building</option></select>
+      </div>
+      <div class="ob-row">
+        <div class="ob-f"><label>Target ($)</label><input id="ft" type="number" value="150000"></div>
+        <div class="ob-f"><label>Years</label><input id="fh" type="number" value="7"></div>
+      </div>
+    </div>
+    <div class="ob-actions">
+      <button class="btn btn-ghost" onclick="og(2)">← Back</button>
+      <button class="btn btn-lime" onclick="og(4)">Continue →</button>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="ob-step" id="os4">
+    <div class="ob-tag">STEP 04 / 04 · READY</div>
+    <div class="ob-title">Your AI profile is ready ✦</div>
+    <div class="ob-desc">Analysis complete. Here's what we found:</div>
+    <div class="ob-sum" id="obSum"></div>
+    <div class="ob-ai-box">
+      <div class="ob-ai-lbl">AI FIRST TAKE</div>
+      <div class="ob-ai-txt" id="obAI"></div>
+    </div>
+    <div class="ob-actions">
+      <button class="btn btn-ghost" onclick="og(3)">← Back</button>
+      <button class="btn btn-lime" onclick="launch()">Open Platform →</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ════════════ MAIN APP ════════════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav class="sb">
+    <div class="sb-logo">
+      <div class="sb-mark">
+        <svg viewBox="0 0 16 16" fill="none"><polygon points="8,1 15,5 15,11 8,15 1,11 1,5" fill="#07090f"/><circle cx="8" cy="8" r="3" fill="#07090f"/><circle cx="8" cy="8" r="1.5" fill="#a8ff3e"/></svg>
+      </div>
+      <div><div class="sb-brand">NEXUS</div><div class="sb-ver">AI PLATFORM v2</div></div>
+    </div>
+    <div class="sb-nav">
+      <div class="sb-sec">Overview</div>
+      <div class="sb-item on" onclick="nav('dash',this)"><span class="sb-ico">◧</span>Dashboard</div>
+      <div class="sb-item" onclick="nav('health',this)"><span class="sb-ico">◑</span>Fin. Health</div>
+      <div class="sb-sec" style="margin-top:10px">Products</div>
+      <div class="sb-item" onclick="nav('loans',this)"><span class="sb-ico">◈</span>Loans<span class="sb-badge">3</span></div>
+      <div class="sb-item" onclick="nav('ins',this)"><span class="sb-ico">◐</span>Insurance</div>
+      <div class="sb-item" onclick="nav('bank',this)"><span class="sb-ico">⬡</span>Banking</div>
+      <div class="sb-sec" style="margin-top:10px">Intelligence</div>
+      <div class="sb-item" onclick="nav('ai',this)"><span class="sb-ico">✦</span>AI Advisor</div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-av" id="sbAv">J</div>
+      <div><div class="sb-uname" id="sbNm">Jordan</div><div class="sb-utag">PREMIUM · AI</div></div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title" id="tbT">Dashboard</div><div class="tb-sub" id="tbS">Real-time financial overview</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="ai-pill"><div class="ai-dot"></div>AI ACTIVE</div>
+        <button class="btn btn-lime btn-sm" id="tbCta">+ New</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="pg on" id="pg-dash">
+        <div class="g4">
+          <div class="card card-sm"><div class="clabel">Total Balance</div><div class="cval" id="kBalance">—</div><div class="cdelta up">↑ 6.3% MTD</div></div>
+          <div class="card card-sm"><div class="clabel">Monthly Savings</div><div class="cval" id="kSav">—</div><div class="cdelta" id="kSavD"></div></div>
+          <div class="card card-sm"><div class="clabel">Monthly Expenses</div><div class="cval" id="kExp">—</div><div class="cdelta dn">↑ 3.1% vs avg</div></div>
+          <div class="card card-sm"><div class="clabel">Net Worth</div><div class="cval" id="kNw">—</div><div class="cdelta up">↑ Growing</div></div>
+        </div>
+
+        <div class="g75">
+          <div class="card">
+            <div class="sh">
+              <div><div class="sh-title">Income vs. Spending</div><div class="sh-sub">6-month trend</div></div>
+              <div class="legend">
+                <div class="leg-item"><div class="leg-dot" style="background:var(--lime)"></div>Income</div>
+                <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div>Expenses</div>
+              </div>
+            </div>
+            <div class="chart-bar" id="spendChart"></div>
+          </div>
+          <div class="card">
+            <div class="sh"><div class="sh-title">Credit Score</div></div>
+            <div class="cr-wrap">
+              <div class="cr-svg">
+                <svg width="130" height="130" viewBox="0 0 130 130">
+                  <circle cx="65" cy="65" r="54" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="9"/>
+                  <circle cx="65" cy="65" r="54" fill="none" stroke-width="9"
+                    stroke-dasharray="0 339" stroke-linecap="round" id="crRing">
+                    <animate attributeName="stroke" values="url(#cg)" dur="0s" fill="freeze"/>
+                  </circle>
+                  <defs>
+                    <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#a8ff3e"/>
+                      <stop offset="100%" stop-color="#38e8ff"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="cr-inner">
+                  <div class="cr-num" id="crN">—</div>
+                  <div class="cr-of">/ 850</div>
+                </div>
+              </div>
+              <div class="cr-badge" id="crB">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div class="card">
+            <div class="sh-title" style="margin-bottom:14px">Asset Allocation</div>
+            <div style="display:flex;align-items:center;gap:20px">
+              <div class="donut-wrap">
+                <svg width="130" height="130" viewBox="0 0 130 130">
+                  <circle cx="65" cy="65" r="50" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="16"/>
+                  <circle id="da1" cx="65" cy="65" r="50" fill="none" stroke="#a8ff3e" stroke-width="16" stroke-dasharray="0 314" stroke-linecap="butt"/>
+                  <circle id="da2" cx="65" cy="65" r="50" fill="none" stroke="#38e8ff" stroke-width="16" stroke-dasharray="0 314" stroke-linecap="butt"/>
+                  <circle id="da3" cx="65" cy="65" r="50" fill="none" stroke="#22c77a" stroke-width="16" stroke-dasharray="0 314" stroke-linecap="butt"/>
+                  <circle id="da4" cx="65" cy="65" r="50" fill="none" stroke="#f05252" stroke-width="16" stroke-dasharray="0 314" stroke-linecap="butt"/>
+                </svg>
+                <div class="donut-center"><div class="donut-num" id="dnw">—</div><div class="donut-lbl">net worth</div></div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;flex:1" id="allocLeg"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="sh-title" style="margin-bottom:14px">Savings Trajectory</div>
+            <svg class="line-chart" id="lineChart" viewBox="0 0 300 120" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#a8ff3e" stop-opacity=".3"/>
+                  <stop offset="100%" stop-color="#a8ff3e" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path id="lineArea" fill="url(#lg1)"/>
+              <path id="linePath" fill="none" stroke="#a8ff3e" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sh"><div class="sh-title">AI Recommendations</div><span class="bdg bdg-l">PERSONALIZED</span></div>
+          <div id="dashInsights"></div>
+        </div>
+      </div>
+
+      <!-- ══ LOANS ══ -->
+      <div class="pg" id="pg-loans">
+        <div class="g3" id="loanKpis"></div>
+        <div id="loanInsight" class="mb"></div>
+        <div class="card mb">
+          <div class="sh">
+            <div><div class="sh-title">Loan Comparison Engine</div><div class="sh-sub">Rates matched to your credit profile</div></div>
+            <button class="btn btn-lime btn-sm">Apply Now →</button>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>Type</th><th>Lender</th><th>Amount</th><th>APR</th><th>Term</th><th>Monthly</th><th>Eligibility</th><th></th></tr></thead><tbody id="loanTbody"></tbody></table></div>
+        </div>
+        <div class="card">
+          <div class="sh-title" style="margin-bottom:14px">APR Comparison — Market vs. Your Rate</div>
+          <div class="chart-bar" id="loanChart" style="height:140px"></div>
+          <div style="display:flex;gap:14px;margin-top:10px">
+            <div class="leg-item"><div class="leg-dot" style="background:rgba(56,232,255,.5)"></div>Market Avg</div>
+            <div class="leg-item"><div class="leg-dot" style="background:var(--lime)"></div>Your Rate</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ INSURANCE ══ -->
+      <div class="pg" id="pg-ins">
+        <div id="insInsight" class="mb"></div>
+        <div class="g2" id="insFeat"></div>
+        <div class="card mb">
+          <div class="sh"><div><div class="sh-title">Full Coverage Comparison</div><div class="sh-sub">AI-matched to your assets</div></div></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Type</th><th>Provider</th><th>Premium/yr</th><th>Coverage</th><th>Cov. Score</th><th>AI Match</th><th>Rating</th><th></th></tr></thead><tbody id="insTbody"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ══ BANKING ══ -->
+      <div class="pg" id="pg-bank">
+        <div class="g3">
+          <div class="card card-sm" style="background:linear-gradient(135deg,rgba(168,255,62,.1),rgba(56,232,255,.05));border-color:rgba(168,255,62,.2)">
+            <div class="clabel">Primary Account</div><div class="cval" id="bkPri">—</div>
+            <div style="font-size:10px;color:var(--t3);margin-top:5px">**** **** **** 7284</div>
+          </div>
+          <div class="card card-sm">
+            <div class="clabel">High-Yield Savings</div><div class="cval" id="bkHy">—</div>
+            <div style="font-size:10px;color:var(--lime);margin-top:5px">APY: 4.85%</div>
+          </div>
+          <div class="card card-sm">
+            <div class="clabel">Sent This Month</div><div class="cval">$4,830</div>
+            <div style="font-size:10px;color:var(--t3);margin-top:5px">12 transactions</div>
+          </div>
+        </div>
+        <div class="g64">
+          <div class="card"><div class="sh-title" style="margin-bottom:14px">Transaction History</div><div id="txnList"></div></div>
+          <div>
+            <div class="card mb">
+              <div class="sh-title" style="margin-bottom:14px">Quick Transfer</div>
+              <div class="tf-box"><span class="tf-lbl">Amount</span><input class="tf-inp" id="tfA" type="number" placeholder="0.00"></div>
+              <div class="tf-box"><span class="tf-lbl">Recipient</span><select class="tf-sel"><option>Sarah Kendall</option><option>Mike Torres</option><option>Emma Park</option></select></div>
+              <div class="tf-box"><span class="tf-lbl">Note</span><input style="width:100%;background:transparent;border:none;font-size:13px;font-weight:600;color:var(--t1);font-family:inherit;outline:none" placeholder="Payment for…"></div>
+              <button class="btn btn-lime" style="width:100%;margin-top:6px" onclick="doTf()">Send Money →</button>
+            </div>
+            <div class="card"><div class="sh-title" style="margin-bottom:12px">Deposit Rates</div><div id="depRates"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ HEALTH ══ -->
+      <div class="pg" id="pg-health">
+        <div class="g64">
+          <div class="card"><div class="sh-title" style="margin-bottom:18px">Monthly Budget Tracker</div><div id="budgetCats"></div></div>
+          <div class="card">
+            <div class="sh-title" style="margin-bottom:12px">Financial Health Score</div>
+            <div class="hm"><div class="hm-score" id="hmScore">—</div><div class="hm-lbl">/ 100 · AI Assessment</div></div>
+            <div class="hm-bars" id="hmBars"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="sh-title" style="margin-bottom:14px">Expense Breakdown</div>
+          <div class="chart-bar" id="expChart" style="height:150px"></div>
+        </div>
+      </div>
+
+      <!-- ══ AI ADVISOR ══ -->
+      <div class="pg" id="pg-ai">
+        <div class="g3" id="aiKpis"></div>
+        <div id="aiRecs"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+//  NEXUS — Core Logic (zero dependencies)
+// ════════════════════════════════════════════
+
+let U={name:'Jordan Mercer',job:'Software Engineer',income:8500,expenses:5200,savings:32000,debt:9500,invest:22000,prop:280000,home:'Homeowner',car:'Own a car',risk:'Moderate',goal:'Buy a home',target:150000,horizon:7};
+let selRisk='Moderate';
+
+// ── Onboarding ───────────────────────────────
+function sr(r,el){
+  selRisk=r;
+  ['rc','rm','ra'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  el.classList.add('on');
+}
+function og(s){
+  if(s>=2){U.name=document.getElementById('fn').value||'Jordan';U.job=document.getElementById('fj').value;U.income=+document.getElementById('fi').value||8500;U.expenses=+document.getElementById('fe').value||5200;}
+  if(s>=3){U.savings=+document.getElementById('fsa').value||32000;U.debt=+document.getElementById('fde').value||9500;U.invest=+document.getElementById('fin').value||22000;U.prop=+document.getElementById('fpr').value||280000;U.home=document.getElementById('fho').value;U.car=document.getElementById('fca').value;}
+  if(s>=4){U.risk=selRisk;U.goal=document.getElementById('fg').value;U.target=+document.getElementById('ft').value||150000;U.horizon=+document.getElementById('fh').value||7;buildObSum();}
+  document.querySelectorAll('.ob-step').forEach(x=>x.classList.remove('on'));
+  document.getElementById('os'+s).classList.add('on');
+  document.getElementById('obF').style.width=(s*20)+'%';
+}
+function buildObSum(){
+  const cs=calcCS(),nw=U.savings+U.invest+U.prop-U.debt,sr=Math.round((U.income-U.expenses)/U.income*100);
+  const items=[{l:'Credit Score',v:cs+' / 850',c:cs>700?'var(--lime)':'var(--gold)'},{l:'Net Worth',v:'$'+fmt(nw),c:'var(--cyan)'},{l:'Savings Rate',v:sr+'%',c:sr>20?'var(--green)':'var(--gold)'},{l:'Risk Profile',v:U.risk,c:'var(--t1)'}];
+  document.getElementById('obSum').innerHTML=items.map(i=>`<div class="ob-sum-item"><div class="osi-label">${i.l}</div><div class="osi-val" style="color:${i.c}">${i.v}</div></div>`).join('');
+  const bl=bestLoan();
+  document.getElementById('obAI').textContent=`Based on your ${U.job} income and ${U.risk.toLowerCase()} risk profile, best opportunity: ${bl.type} at ~${bl.rate} APR. Also review ${bestIns()[0]}.`;
+}
+function launch(){
+  document.getElementById('ob').style.display='none';
+  const app=document.getElementById('app');app.classList.add('show');
+  document.getElementById('sbAv').textContent=U.name[0];
+  document.getElementById('sbNm').textContent=U.name;
+  initApp();
+}
+
+// ── AI Engine ─────────────────────────────────
+function calcCS(){
+  let s=300,dti=U.debt/(U.income*12),sr=(U.income-U.expenses)/U.income;
+  s+=dti<.1?160:dti<.2?110:dti<.3?60:10;
+  s+=sr>.35?130:sr>.25?90:sr>.15?50:15;
+  s+=U.home==='Homeowner'?80:10;
+  s+=U.savings>50000?100:U.savings>20000?65:25;
+  s+=U.invest>15000?80:U.invest>5000?45:10;
+  s+=Math.min(U.income/90,130);
+  return Math.min(Math.round(s),850);
+}
+function calcHS(){
+  let s=0,sr=(U.income-U.expenses)/U.income,dti=U.debt/(U.income*12);
+  s+=sr>.3?28:sr>.2?20:sr>.1?11:3;
+  s+=dti<.1?26:dti<.2?18:dti<.3?10:3;
+  s+=Math.min(Math.round(U.savings/U.income*5),24);
+  s+=U.home==='Homeowner'?14:4;
+  s+=calcCS()>760?10:calcCS()>660?7:3;
+  return Math.min(s,100);
+}
+function bestLoan(){
+  const cs=calcCS();
+  if(cs>760&&U.home==='Homeowner')return{type:'Mortgage',rate:'6.1%',reason:'Excellent credit + homeowner = premium mortgage rates'};
+  if(cs>700)return{type:'Personal Loan',rate:'8.9%',reason:'Strong credit qualifies for below-market personal rates'};
+  return{type:'Micro Loan',rate:'11.5%',reason:'Build credit history to unlock better rates'};
+}
+function bestIns(){
+  const r=[];
+  if(U.car==='Own a car')r.push('Car Insurance');
+  if(U.home==='Homeowner')r.push('Home Insurance');
+  r.push('Life Insurance','Health Insurance');
+  return r;
+}
+
+// ── Init ──────────────────────────────────────
+function initApp(){
+  const cs=calcCS(),hs=calcHS(),nw=U.savings+U.invest+U.prop-U.debt,ms=U.income-U.expenses,sr=Math.round(ms/U.income*100);
+
+  // KPIs
+  document.getElementById('kBalance').textContent='$'+fmt(U.savings+U.invest);
+  document.getElementById('kExp').textContent='$'+fmt(U.expenses);
+  document.getElementById('kNw').textContent='$'+fmt(nw);
+  document.getElementById('kSav').textContent='$'+fmt(ms);
+  const d=document.getElementById('kSavD');d.textContent=sr+'% savings rate';d.className='cdelta '+(sr>=20?'up':'dn');
+  document.getElementById('bkPri').textContent='$'+fmt(U.savings*.45);
+  document.getElementById('bkHy').textContent='$'+fmt(U.savings*.55);
+
+  // Credit ring
+  setTimeout(()=>{
+    const c=2*Math.PI*54,f=c*(cs/850);
+    const ring=document.getElementById('crRing');
+    ring.setAttribute('stroke','url(#cg)');
+    ring.setAttribute('stroke-dasharray',f+' '+(c-f));
+    document.getElementById('crN').textContent=cs;
+    const b=document.getElementById('crB');
+    if(cs>=760){b.textContent='✦ EXCELLENT';b.style.cssText='background:rgba(168,255,62,.12);color:var(--lime)';}
+    else if(cs>=660){b.textContent='◉ GOOD';b.style.cssText='background:rgba(56,232,255,.1);color:var(--cyan)';}
+    else{b.textContent='⚠ FAIR';b.style.cssText='background:rgba(244,185,66,.1);color:var(--gold)';}
+  },500);
+
+  // Donut
+  const total=U.savings+U.invest+(U.prop*.12)+U.debt;
+  const segs=[{v:U.savings,c:'#a8ff3e',l:'Cash/Savings'},{v:U.invest,c:'#38e8ff',l:'Investments'},{v:U.prop*.12,c:'#22c77a',l:'Property'},{v:U.debt,c:'#f05252',l:'Debt'}];
+  const circ=2*Math.PI*50,cxcy='65 65',r=50;let offset=0;
+  segs.forEach((sg,i)=>{
+    const len=circ*(sg.v/total);
+    const el=document.getElementById('da'+(i+1));
+    el.setAttribute('stroke-dasharray',len+' '+(circ-len));
+    el.setAttribute('stroke-dashoffset',-(offset));
+    offset+=len;
+  });
+  document.getElementById('dnw').textContent='$'+fmtK(nw);
+  document.getElementById('allocLeg').innerHTML=segs.map(sg=>`<div class="leg-item"><div class="leg-dot" style="background:${sg.c}"></div>${sg.l}: $${fmtK(sg.v)}</div>`).join('');
+
+  // Spending bar chart
+  const months=['Jul','Aug','Sep','Oct','Nov','Dec'];
+  const maxH=160;
+  const incD=months.map(()=>U.income*(0.88+Math.random()*.24));
+  const expD=months.map(()=>U.expenses*(0.80+Math.random()*.38));
+  const maxV=Math.max(...incD,...expD);
+  document.getElementById('spendChart').innerHTML=months.map((m,i)=>`
+    <div class="bar-col">
+      <div class="bar-pair">
+        <div class="bar-i" style="height:${Math.round(incD[i]/maxV*(maxH-24))}px"></div>
+        <div class="bar-e" style="height:${Math.round(expD[i]/maxV*(maxH-24))}px"></div>
+      </div>
+      <div class="bar-label">${m}</div>
+    </div>`).join('');
+
+  // Line chart (savings trajectory)
+  const pts=Array.from({length:12},(_,i)=>U.savings+ms*(i+1));
+  const minP=Math.min(...pts),maxP=Math.max(...pts);
+  const W=300,H=100,pad=10;
+  const xs=pts.map((_,i)=>pad+i*(W-pad*2)/11);
+  const ys=pts.map(p=>H-pad-(p-minP)/(maxP-minP)*(H-pad*2));
+  const pathD='M '+xs.map((x,i)=>x+','+ys[i]).join(' L ');
+  const areaD=pathD+' L '+xs[11]+','+(H)+' L '+xs[0]+','+(H)+' Z';
+  document.getElementById('linePath').setAttribute('d',pathD);
+  document.getElementById('lineArea').setAttribute('d',areaD);
+
+  // Dashboard insights
+  const bl=bestLoan(),bi=bestIns();
+  document.getElementById('dashInsights').innerHTML=[
+    {ico:'◈',title:bl.type+' opportunity — '+bl.rate+' APR',body:bl.reason+`. Income $${fmt(U.income)}/mo supports ~$${fmt(Math.round(U.income*.28))}/mo payments.`,tag:'LOAN'},
+    {ico:'◐',title:'Top insurance priorities identified',body:`Based on your assets (${U.home}, ${U.car}): ${bi.slice(0,2).join(' + ')}. Estimated: ~$2,400/yr combined.`,tag:'INSURANCE'},
+    {ico:'◧',title:'Savings acceleration possible',body:`Adding $${fmt(Math.round(ms*.15))}/mo more to HYSA adds $${fmt(Math.round(ms*.15*12*U.horizon))} over ${U.horizon} years.`,tag:'STRATEGY'},
+  ].map(i=>`<div class="insight"><div class="i-head"><span class="i-ico">${i.ico}</span><div class="i-title">${i.title}</div><span class="i-tag">${i.tag}</span></div><div class="i-body">${i.body}</div></div>`).join('');
+
+  buildLoans();buildIns();buildBanking();buildHealth();buildAI();
+}
+
+// ── Loans ─────────────────────────────────────
+function buildLoans(){
+  const cs=calcCS(),maxL=U.income*55,bl=bestLoan();
+  document.getElementById('loanKpis').innerHTML=[
+    {l:'Max Eligible',v:'$'+fmt(maxL),s:'Income-based',c:'var(--lime)'},
+    {l:'Best APR',v:'6.1%',s:'Mortgage rate',c:'var(--cyan)'},
+    {l:'Approval Odds',v:cs>720?'High':'Medium',s:'DTI + credit score',c:cs>720?'var(--green)':'var(--gold)'},
+  ].map(k=>`<div class="card card-sm"><div class="clabel">${k.l}</div><div class="cval" style="color:${k.c}">${k.v}</div><div style="font-size:10px;color:var(--t3);margin-top:4px">${k.s}</div></div>`).join('');
+  document.getElementById('loanInsight').innerHTML=`<div class="insight"><div class="i-head"><span class="i-ico">◈</span><div class="i-title">Best Match: ${bl.type} at ${bl.rate} APR</div><span class="i-tag">AI PICK</span></div><div class="i-body">${bl.reason}. Monthly capacity: $${fmt(Math.round(U.income*.28))}. Max: $${fmt(maxL)}.</div></div>`;
+  const loans=[
+    {t:'Personal',l:'Nexus Credit',amt:Math.round(U.income*14),apr:8.9,term:'36 mo',mo:Math.round(U.income*.24),el:calcCS()>680?'High':'Med',rec:bl.type.includes('Personal')},
+    {t:'Auto Loan',l:'AutoFirst',amt:38000,apr:7.4,term:'60 mo',mo:760,el:'High',rec:bl.type.includes('Auto')},
+    {t:'Mortgage',l:'HomeBase',amt:Math.round(maxL*.75),apr:6.1,term:'360 mo',mo:Math.round(maxL*.75*.0061),el:U.home==='Homeowner'?'High':'Med',rec:bl.type.includes('Mortgage')},
+    {t:'Business',l:'BizVault',amt:80000,apr:10.2,term:'84 mo',mo:1340,el:calcCS()>720?'Med':'Low',rec:false},
+    {t:'Micro Loan',l:'QuickFund',amt:6000,apr:14,term:'24 mo',mo:288,el:'High',rec:bl.type.includes('Micro')},
+  ];
+  document.getElementById('loanTbody').innerHTML=loans.map(l=>`<tr class="${l.rec?'hi':''}"><td><strong>${l.t}</strong>${l.rec?' <span class="bdg bdg-l">AI PICK</span>':''}</td><td style="color:var(--t2)">${l.l}</td><td>$${fmt(l.amt)}</td><td><span style="color:var(--lime);font-weight:800">${l.apr}%</span></td><td style="color:var(--t2)">${l.term}</td><td>$${fmt(l.mo)}/mo</td><td><span class="bdg ${l.el==='High'?'bdg-g':l.el==='Med'?'bdg-y':'bdg-r'}">${l.el}</span></td><td><button class="btn btn-out btn-sm">Apply</button></td></tr>`).join('');
+
+  // Loan APR bar chart
+  const types=['Personal','Auto','Mortgage','Business','Micro'];
+  const mkt=[13.5,9.2,7.8,12.5,19];
+  const mine=[8.9,7.4,6.1,10.2,14];
+  const maxA=Math.max(...mkt,...mine);
+  document.getElementById('loanChart').innerHTML=types.map((t,i)=>`
+    <div class="bar-col">
+      <div class="bar-pair">
+        <div class="bar-i" style="height:${Math.round(mkt[i]/maxA*116)}px;background:rgba(56,232,255,.4)"></div>
+        <div class="bar-i" style="height:${Math.round(mine[i]/maxA*116)}px"></div>
+      </div>
+      <div class="bar-label">${t}</div>
+    </div>`).join('');
+}
+
+// ── Insurance ─────────────────────────────────
+function buildIns(){
+  const bi=bestIns();
+  const ins=[
+    {n:'Car Insurance',ico:'🚗',prem:1380,cov:'$75k',match:U.car==='Own a car'?98:35,rat:'4.9',cov5:5,prov:'AllShield Pro'},
+    {n:'Home Insurance',ico:'🏡',prem:1920,cov:'$280k',match:U.home==='Homeowner'?97:28,rat:'4.7',cov5:5,prov:'HomeGuard'},
+    {n:'Health Insurance',ico:'❤️',prem:2640,cov:'$1M',match:94,rat:'4.8',cov5:5,prov:'MedCare+'},
+    {n:'Life Insurance',ico:'💎',prem:960,cov:'$500k',match:88,rat:'4.6',cov5:4,prov:'LifeVault'},
+    {n:'Fire Insurance',ico:'🔥',prem:520,cov:'$200k',match:U.home==='Homeowner'?82:15,rat:'4.3',cov5:3,prov:'FireSafe'},
+    {n:'Liability',ico:'⚖️',prem:390,cov:'$100k',match:61,rat:'4.2',cov5:3,prov:'LiabCo'},
+  ];
+  document.getElementById('insInsight').innerHTML=`<div class="insight"><div class="i-head"><span class="i-ico">◐</span><div class="i-title">Priority gaps: ${bi.slice(0,2).join(' & ')}</div><span class="i-tag">AI ANALYSIS</span></div><div class="i-body">Given ${U.home} and ${U.car}, critical coverage gaps detected. Combined estimate: ~$${fmt(bi.length*1100+500)}/yr.</div></div>`;
+  document.getElementById('insFeat').innerHTML=ins.slice(0,4).map(t=>`<div class="card card-sm" style="${t.match>90?'border-color:rgba(168,255,62,.2)':''}"><div style="display:flex;align-items:center;gap:9px;margin-bottom:10px"><span style="font-size:24px">${t.ico}</span><div style="flex:1"><div style="font-size:13px;font-weight:700">${t.n}</div><div style="font-size:10px;color:var(--t3)">${t.prov}</div></div>${t.match>90?'<span class="bdg bdg-l">AI PICK</span>':''}</div><div style="font-size:20px;font-weight:800">$${fmt(t.prem)}<span style="font-size:11px;font-weight:400;color:var(--t2)">/yr</span></div><div style="font-size:10px;color:var(--t2);margin-top:3px">Coverage: ${t.cov}</div><div class="cov-dots" style="margin-top:8px">${Array.from({length:5},(_,j)=>`<div class="cov-dot ${j<t.cov5?'on':''}"></div>`).join('')}</div><div style="display:flex;justify-content:space-between;margin-top:9px"><span style="font-size:10px;color:var(--t3)">AI Match</span><span style="font-size:12px;font-weight:800;color:${t.match>90?'var(--lime)':t.match>70?'var(--gold)':'var(--t2)'}">${t.match}%</span></div></div>`).join('');
+  document.getElementById('insTbody').innerHTML=ins.map(t=>`<tr class="${t.match>90?'hi':''}"><td>${t.ico} <strong>${t.n}</strong></td><td style="color:var(--t2)">${t.prov}</td><td>$${fmt(t.prem)}</td><td>${t.cov}</td><td><div style="display:flex;gap:3px">${Array.from({length:5},(_,j)=>`<div style="width:6px;height:6px;border-radius:50%;background:${j<t.cov5?'var(--lime)':'var(--bg5)'};${j<t.cov5?'box-shadow:0 0 3px rgba(168,255,62,.4)':''}"></div>`).join('')}</div></td><td><div style="display:flex;align-items:center;gap:6px"><div style="height:4px;width:60px;background:var(--bg4);border-radius:2px;overflow:hidden"><div style="height:100%;width:${t.match}%;background:${t.match>90?'var(--lime)':t.match>70?'var(--gold)':'var(--cyan)'};border-radius:2px"></div></div>${t.match}%</div></td><td>⭐ ${t.rat}</td><td><button class="btn btn-out btn-sm">Quote</button></td></tr>`).join('');
+}
+
+// ── Banking ───────────────────────────────────
+function buildBanking(){
+  const txns=[
+    {n:'Monthly Salary',ico:'💼',bg:'rgba(168,255,62,.1)',date:'Dec 01',amt:'+$'+fmt(U.income),cr:true},
+    {n:'Rent / Mortgage',ico:'🏠',bg:'rgba(240,82,82,.1)',date:'Dec 02',amt:'-$1,600',cr:false},
+    {n:'Whole Foods',ico:'🛒',bg:'rgba(244,185,66,.1)',date:'Dec 04',amt:'-$134',cr:false},
+    {n:'Netflix',ico:'🎬',bg:'rgba(99,102,241,.12)',date:'Dec 05',amt:'-$18',cr:false},
+    {n:'Freelance Project',ico:'💻',bg:'rgba(56,232,255,.1)',date:'Dec 06',amt:'+$1,200',cr:true},
+    {n:'Shell Gas',ico:'⛽',bg:'rgba(244,185,66,.1)',date:'Dec 07',amt:'-$72',cr:false},
+    {n:'Investment Return',ico:'📈',bg:'rgba(34,199,122,.1)',date:'Dec 09',amt:'+$342',cr:true},
+  ];
+  document.getElementById('txnList').innerHTML=txns.map(t=>`<div class="txn"><div class="txn-av" style="background:${t.bg}">${t.ico}</div><div><div class="txn-name">${t.n}</div><div class="txn-date">${t.date}</div></div><div class="txn-amt ${t.cr?'cr-t':'dr-t'}">${t.amt}</div></div>`).join('');
+  const rates=[{b:'Nexus High-Yield',r:'4.85%',best:true},{b:'Marcus by GS',r:'4.60%',best:false},{b:'Ally Bank',r:'4.50%',best:false},{b:'SoFi',r:'4.30%',best:false},{b:'Traditional Bank',r:'0.01%',best:false}];
+  document.getElementById('depRates').innerHTML=rates.map(d=>`<div class="dep-row"><div class="dep-bank">${d.b}</div>${d.best?'<span class="bdg bdg-l">BEST</span>':''}<div class="dep-rate" style="color:${d.best?'var(--lime)':parseFloat(d.r)>1?'var(--t1)':'var(--t3)'}">${d.r}</div></div>`).join('');
+}
+
+// ── Health ────────────────────────────────────
+function buildHealth(){
+  const hs=calcHS();
+  document.getElementById('hmScore').textContent=hs;
+  document.getElementById('hmScore').style.color=hs>70?'var(--green)':hs>50?'var(--gold)':'var(--red)';
+  const cats=[{n:'Housing',e:'🏠',spent:1600,bgt:1600,c:'#a8ff3e'},{n:'Food',e:'🍔',spent:680,bgt:600,c:'#f4b942'},{n:'Transport',e:'🚗',spent:440,bgt:450,c:'#38e8ff'},{n:'Healthcare',e:'❤️',spent:310,bgt:380,c:'#22c77a'},{n:'Entertainment',e:'🎮',spent:240,bgt:200,c:'#f05252'},{n:'Shopping',e:'🛍️',spent:490,bgt:400,c:'#a78bfa'},{n:'Utilities',e:'⚡',spent:210,bgt:220,c:'#38bdf8'}];
+  document.getElementById('budgetCats').innerHTML=cats.map(c=>{const pct=Math.min(Math.round(c.spent/c.bgt*100),100),ov=c.spent>c.bgt;return`<div class="bcat"><div class="bcat-row"><div class="bcat-name"><span>${c.e}</span>${c.n}</div><div class="bcat-vals" style="color:${ov?'var(--red)':''}">${ov?'⚠ ':''}$${c.spent} / $${c.bgt}</div></div><div class="ptrack"><div class="pfill" style="width:${pct}%;background:${ov?'var(--red)':c.c}"></div></div></div>`;}).join('');
+  const metrics=[{l:'Savings Rate',v:Math.round((U.income-U.expenses)/U.income*100),c:'#a8ff3e'},{l:'Debt-to-Income',v:Math.round(U.debt/(U.income*12)*100),c:'#f05252'},{l:'Emergency Fund',v:Math.min(Math.round(U.savings/(U.expenses*6)*100),100),c:'#38e8ff'},{l:'Invest Ratio',v:Math.round(U.invest/(U.savings+U.invest)*100),c:'#22c77a'}];
+  document.getElementById('hmBars').innerHTML=metrics.map(m=>`<div class="hm-row"><div class="hm-rl">${m.l}</div><div class="hm-rt"><div class="hm-rf" style="width:${m.v}%;background:${m.c}"></div></div><div class="hm-rv" style="color:${m.c}">${m.v}%</div></div>`).join('');
+
+  // Expense breakdown bar chart
+  const expCats=[{l:'Housing',v:1600,c:'#a8ff3e'},{l:'Food',v:680,c:'#38e8ff'},{l:'Transport',v:440,c:'#22c77a'},{l:'Health',v:310,c:'#f4b942'},{l:'Fun',v:240,c:'#f05252'},{l:'Shopping',v:490,c:'#a78bfa'},{l:'Utilities',v:210,c:'#38bdf8'}];
+  const maxEV=Math.max(...expCats.map(x=>x.v));
+  document.getElementById('expChart').innerHTML=expCats.map(ec=>`<div class="bar-col"><div class="bar-pair" style="justify-content:center"><div class="bar-i" style="height:${Math.round(ec.v/maxEV*126)}px;background:${ec.c};opacity:.8;max-width:22px"></div></div><div class="bar-label">${ec.l}</div></div>`).join('');
+}
+
+// ── AI Advisor ────────────────────────────────
+function buildAI(){
+  const cs=calcCS(),hs=calcHS(),sr=Math.round((U.income-U.expenses)/U.income*100),bl=bestLoan(),bi=bestIns(),ms=U.income-U.expenses;
+  document.getElementById('aiKpis').innerHTML=[
+    {l:'Credit Score',v:cs+' / 850',c:cs>700?'var(--lime)':'var(--gold)',ico:'◈'},
+    {l:'Health Score',v:hs+' / 100',c:hs>70?'var(--green)':'var(--gold)',ico:'◑'},
+    {l:'Savings Rate',v:sr+'%',c:sr>20?'var(--green)':'var(--gold)',ico:'◧'},
+  ].map(k=>`<div class="card card-sm"><div style="font-size:22px;margin-bottom:7px">${k.ico}</div><div class="clabel">${k.l}</div><div class="cval" style="color:${k.c}">${k.v}</div></div>`).join('');
+  const recs=[
+    {ico:'◈',title:'Loan Strategy',col:'var(--lime)',items:[`Best match: <strong>${bl.type}</strong> at <strong>${bl.rate} APR</strong>`,`Monthly capacity: <strong>$${fmt(Math.round(U.income*.28))}</strong> (28% rule)`,`Max eligible: <strong>$${fmt(U.income*55)}</strong>`,cs<700?'⚠ Boost score +50pts → save ~$80/mo':'✦ Credit qualifies for premium rates']},
+    {ico:'◐',title:'Insurance Plan',col:'var(--cyan)',items:bi.map((r,i)=>`${['①','②','③','④'][i]} ${r}`)},
+    {ico:'◧',title:'Savings Strategy',col:'var(--green)',items:[`Target $${fmt(U.target)} in ${U.horizon} yrs → need $${fmt(Math.round(U.target/(U.horizon*12)))}/mo`,`Current surplus: $${fmt(ms)}/mo → ${ms>=Math.round(U.target/(U.horizon*12))?'✦ ON TRACK':'⚠ NEED MORE'}`,`Risk: ${U.risk} → ${U.risk==='Conservative'?'Bonds + Money Market':U.risk==='Moderate'?'Index Funds + REITs':'Growth ETFs'}`,`Move to 4.85% HYSA → +$${fmt(Math.round(U.savings*.0385))}/yr`]},
+    {ico:'⬡',title:'Quick Wins',col:'var(--gold)',items:[`Refinance $${fmt(U.debt)} debt → save ~$${fmt(Math.round(U.debt*.03))}/yr`,`Emergency fund: $${fmt(U.expenses*6)} goal (${Math.round(U.savings/(U.expenses*6)*100)}% done)`,'Set up auto-invest on 1st of each month','Review subscriptions — avg $240/mo hidden spend']},
+  ];
+  document.getElementById('aiRecs').innerHTML=recs.map(r=>`<div class="insight" style="border-left:2px solid ${r.col};border-color:rgba(255,255,255,.06);border-left-color:${r.col}"><div class="i-head"><span class="i-ico" style="font-size:18px">${r.ico}</span><div class="i-title">${r.title}</div></div><ul style="list-style:none;display:flex;flex-direction:column;gap:6px">${r.items.map(i=>`<li style="font-size:12px;color:var(--t2);line-height:1.6;padding-left:12px;position:relative"><span style="position:absolute;left:0;color:${r.col}">›</span>${i}</li>`).join('')}</ul></div>`).join('');
+}
+
+// ── Navigation ────────────────────────────────
+const pgMeta={dash:{t:'Dashboard',s:'Real-time financial overview',cta:'+ New'},loans:{t:'Loans',s:'AI-matched products',cta:'Apply Now'},ins:{t:'Insurance',s:'Coverage recommendations',cta:'Get Quote'},bank:{t:'Banking',s:'Accounts & transfers',cta:'+ Transfer'},health:{t:'Financial Health',s:'Budget & score',cta:'Export'},ai:{t:'AI Advisor',s:'Personalized intelligence',cta:'Refresh AI'}};
+function nav(id,el){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  el.classList.add('on');
+  const m=pgMeta[id];
+  document.getElementById('tbT').textContent=m.t;
+  document.getElementById('tbS').textContent=m.s;
+  document.getElementById('tbCta').textContent=m.cta;
+}
+
+// ── Transfer ──────────────────────────────────
+function doTf(){
+  const a=document.getElementById('tfA').value;
+  if(!a||isNaN(a)){showToast('⚠ Enter a valid amount');return;}
+  showToast('✦ $'+fmt(+a)+' sent successfully');
+  document.getElementById('tfA').value='';
+}
+
+// ── Toast ─────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── Utils ─────────────────────────────────────
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+function fmtK(n){return n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>=1000?'$'+(n/1000).toFixed(0)+'K':'$'+Math.round(n);}
+</script>
